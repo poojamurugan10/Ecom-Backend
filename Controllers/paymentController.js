@@ -1,9 +1,9 @@
-import Stripe from "stripe";
+import Razorpay from "razorpay";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const razorpay = new Razorpay(process.env.RAZORPAY_SECRET_KEY);
 
 export const createCheckout = async (req, res) => {
   try {
@@ -24,7 +24,7 @@ export const createCheckout = async (req, res) => {
         quantity: item.quantity,
       };
     });
-    const session = await stripe.checkout.sessions.create({
+    const session = await razorpay.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
