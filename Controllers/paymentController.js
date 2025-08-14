@@ -3,7 +3,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const razorpay = new Razorpay(process.env.RAZORPAY_SECRET_KEY);
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,       
+  key_secret: process.env.RAZORPAY_KEY_SECRET, 
+});
 
 export const createCheckout = async (req, res) => {
   try {
@@ -17,7 +20,7 @@ export const createCheckout = async (req, res) => {
       }
       return {
         price_data: {
-          currency: "usd",
+          currency: "INR",
           product_data: { name: item.product.name },
           unit_amount: Math.round(item.product.price * 100),
         },
