@@ -4,38 +4,34 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,       
-  key_secret: process.env.RAZORPAY_KEY_SECRET, 
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 export const createCheckout = async (req, res) => {
   try {
-    const { items } = req.body;
+    const { amount } = req.body;
 
-    const line_items = items.map((item) => {
-      if (!item.product || !item.product.price) {
-        throw new Error(
-          "Invalid Product Details, Missing product or product price"
-        );
-      }
-      return {
-        price_data: {
-          currency: "INR",
-          product_data: { name: item.product.name },
-          unit_amount: Math.round(item.product.price * 100),
-        },
-        quantity: item.quantity,
-      };
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: "Invalid amount" });
+    }
+
+    const options = {
+      amount: amount * 100, // amount in paise
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    res.json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key: process.env.RAZORPAY_KEY_ID,
     });
-    const session = await razorpay.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items,
-      mode: "payment",
-      success_url: "https://taupe-cuchufli-f5a57c.netlify.app/success",
-      cancel_url: "https://taupe-cuchufli-f5a57c.netlify.app/cancel",
-    });
-    res.json({ url: session.url });
   } catch (error) {
+    console.error("Checkout error:", error);
     res.status(500).json({ message: error.message });
   }
 };

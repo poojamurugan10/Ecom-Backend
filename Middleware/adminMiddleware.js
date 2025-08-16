@@ -5,25 +5,28 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const adminMiddleware = async (req, res, next) => {
-  //const token = req.header("Authorization");
-  const token = req.headers.authorization?.split(" ")[1]; // split('')[1] =>bearer token
+  let token = req.headers.authorization;
 
   if (!token) {
-    return res.status(404).json({ message: "Token Missing" });
+    return res.status(401).json({ message: "Token Missing" });
+  }
+
+  // Accept both "Bearer <token>" and "<token>"
+  if (token.startsWith("Bearer ")) {
+    token = token.split(" ")[1];
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    //console.log("decoded", decoded);
     req.user = decoded;
-    //console.log("req.user", req.user);
+
     const user = await User.findById(req.user._id);
-    if (user.role === "admin") {
+    if (user && user.role === "admin") {
       next();
     } else {
-      res.status(404).json({ message: "Access Denied" });
+      res.status(403).json({ message: "Access Denied: Admins only" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(401).json({ message: "Invalid or Expired Token" });
   }
 };
