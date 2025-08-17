@@ -1,68 +1,67 @@
 import Product from "../Models/productModel.js";
 
-// Create a new product (Admin only)
-export const createProduct = async (req, res) => {
+
+// Get all products (public)
+export const getAllProducts = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized as admin" });
+    console.log("📦 Fetching all products...");
+
+    const products = await Product.find({});
+
+    if (!products || products.length === 0) {
+      console.log("⚠️ No products found in database");
+      return res.status(404).json({ message: "No products found" });
     }
 
+    console.log(`✅ Found ${products.length} products`);
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("❌ Error in getAllProducts:", error.message);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+
+// ✅ Create new product (admin)
+export const createProduct = async (req, res) => {
+  try {
     const product = new Product(req.body);
     const savedProduct = await product.save();
     res.status(201).json(savedProduct);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("❌ Error in createProduct:", error.message);
+    res.status(500).json({ message: "Server error while creating product" });
   }
 };
 
-// Get all products (Public)
-export const getAllProducts = async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Update product (Admin only)
+// ✅ Update product (admin)
 export const updateProduct = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized as admin" });
-    }
-
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
-
     if (!updatedProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
-
-    res.status(200).json(updatedProduct);
+    res.json(updatedProduct);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("❌ Error in updateProduct:", error.message);
+    res.status(500).json({ message: "Server error while updating product" });
   }
 };
 
-// Delete product (Admin only)
+// ✅ Delete product (admin)
 export const deleteProduct = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== "admin") {
-      return res.status(403).json({ message: "Not authorized as admin" });
-    }
-
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-
     if (!deletedProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
-
-    res.status(200).json({ message: "Product deleted successfully" });
+    res.json({ message: "Product deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("❌ Error in deleteProduct:", error.message);
+    res.status(500).json({ message: "Server error while deleting product" });
   }
 };

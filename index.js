@@ -15,21 +15,10 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:3000",  // local frontend
-  "https://ecommwebsite13.netlify.app"  // deployed frontend
-];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // allow cookies/authorization headers
+    origin: "*",  
+    credentials: true,
   })
 );
 
@@ -49,12 +38,11 @@ app.use("/api/payments", paymentRoute);
 app.use("/api/wishlist", wishlistRoute);
 app.use("/api/reviews", reviewRoute);
 
-// Start server only after DB is connected
-const port = process.env.PORT || 4000;
+// ✅ Connect DB & Start server once
+const port = process.env.PORT || 5000;
 
 connectDB().then(() => {
-  app.listen(process.env.PORT || 5000, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
-});
-
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 });
