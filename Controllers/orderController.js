@@ -1,17 +1,14 @@
+import Order from "../Models/orderModel.js";
 import Cart from "../Models/cartModel.js";
 import sendEmail from "../Utils/mailer.js";
 
 // ✅ Create a New Order (from Cart)
 export const createOrder = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user._id }).populate(
-      "items.product"
-    );
+    const cart = await Cart.findOne({ user: req.user._id }).populate("items.product");
 
     if (!cart || cart.items.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Your cart is empty" });
+      return res.status(400).json({ success: false, message: "Your cart is empty" });
     }
 
     const totalPrice = cart.items.reduce(
@@ -68,9 +65,7 @@ export const getMyOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Get My Orders Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch user orders" });
+    res.status(500).json({ success: false, message: "Failed to fetch user orders" });
   }
 };
 
@@ -89,9 +84,7 @@ export const getAllOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Get All Orders Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch all orders" });
+    res.status(500).json({ success: false, message: "Failed to fetch all orders" });
   }
 };
 
@@ -108,9 +101,7 @@ export const updateOrderStatus = async (req, res) => {
     );
 
     if (!updatedOrder) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Order not found" });
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
     res.status(200).json({
@@ -120,8 +111,6 @@ export const updateOrderStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Update Order Status Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to update order status" });
+    res.status(500).json({ success: false, message: "Failed to update order status" });
   }
 };

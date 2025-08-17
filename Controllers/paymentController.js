@@ -1,6 +1,6 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import Order from "../models/orderModel.js";
+import Order from "../Models/orderModel.js";
 
 // ✅ Checkout - Create Razorpay Order
 export const createCheckout = async (req, res) => {
@@ -64,7 +64,7 @@ export const verifyPayment = async (req, res) => {
   }
 };
 
-//  Cancel Order 
+// ✅ Cancel Order 
 export const cancelOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
