@@ -15,11 +15,21 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Secure CORS setup
+const allowedOrigins = [
+  "http://localhost:3000",  // local frontend
+  "https://ecommwebsite13.netlify.app"  // deployed frontend
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, 
-    credentials: true, 
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // allow cookies/authorization headers
   })
 );
 
@@ -43,7 +53,8 @@ app.use("/api/reviews", reviewRoute);
 const port = process.env.PORT || 4000;
 
 connectDB().then(() => {
-  app.listen(port, () => {
-    console.log(`🚀 Server running on port ${port}`);
-  });
+  app.listen(process.env.PORT || 5000, () => {
+  console.log(`Server running on port ${process.env.PORT}`);
+});
+
 });
