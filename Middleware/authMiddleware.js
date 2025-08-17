@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
-import User from "../Models/userModel.js"; // adjust path if your model filename is different
+import User from "../Models/userModel.js"; 
 
-// ✅ Protect middleware: verifies user token
+// Protect middleware: verifies user token
 export const protect = async (req, res, next) => {
   try {
     let token = req.headers.authorization;
 
-    if (token && token.startsWith("Bearer")) {
+    if (token && token.toLowerCase().startsWith("bearer")) {
       token = token.split(" ")[1];
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -22,7 +22,7 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ message: "Not authorized, no token" });
     }
   } catch (error) {
-    console.error("Auth error:", error);
+    console.error("Auth error:", error.message);
     return res.status(401).json({ message: "Not authorized, token failed" });
   }
 };
