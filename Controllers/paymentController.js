@@ -24,14 +24,16 @@ export const createCheckout = async (req, res) => {
       amount: order.amount,
       currency: order.currency,
       key: process.env.RAZORPAY_KEY_ID,
+
+      // ✅ Frontend redirect URLs
+      success_url: "https://ecommwebsite13.netlify.app/payment-success",
+      cancel_url: "https://ecommwebsite13.netlify.app/payment-cancel",
     });
   } catch (error) {
     console.error("Checkout error:", error);
     res.status(500).json({ success: false, message: "Checkout failed" });
   }
 };
-
-
 
 // ✅ Verify Payment
 export const verifyPayment = async (req, res) => {
@@ -57,7 +59,11 @@ export const verifyPayment = async (req, res) => {
       await order.save();
     }
 
-    res.json({ success: true, message: "Payment verified successfully" });
+    res.json({
+      success: true,
+      message: "Payment verified successfully",
+      redirect_url: "https://ecommwebsite13.netlify.app/payment-success",
+    });
   } catch (error) {
     console.error("Verify error:", error);
     res.status(500).json({ success: false, message: "Verification failed" });
@@ -73,7 +79,6 @@ export const cancelOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // Only allow cancelling "Pending" orders
     if (order.status !== "Pending") {
       return res.status(400).json({
         success: false,
@@ -85,10 +90,13 @@ export const cancelOrder = async (req, res) => {
     order.paymentInfo = null; // clear any pending payment info
     await order.save();
 
-    res.json({ success: true, message: "Order cancelled successfully" });
+    res.json({
+      success: true,
+      message: "Order cancelled successfully",
+      redirect_url: "https://ecommwebsite13.netlify.app/payment-cancel",
+    });
   } catch (error) {
     console.error("Cancel order error:", error);
     res.status(500).json({ success: false, message: "Cancel order failed" });
   }
 };
-

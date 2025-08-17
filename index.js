@@ -15,8 +15,14 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// ✅ Secure CORS setup
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL, 
+    credentials: true, 
+  })
+);
+
 app.use(express.json());
 
 // Root route
@@ -28,7 +34,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoute);
 app.use("/api/products", productRoute);
 app.use("/api/cart", cartRoute);
-app.use("/api/orders", orderRoute);   
+app.use("/api/orders", orderRoute);
 app.use("/api/payments", paymentRoute);
 app.use("/api/wishlist", wishlistRoute);
 app.use("/api/reviews", reviewRoute);
