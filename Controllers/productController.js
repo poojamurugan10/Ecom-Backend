@@ -1,64 +1,67 @@
 import Product from "../Models/productModel.js";
 
-//create product
-
+// Create a new product (Admin only)
 export const createProduct = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
-    res
-      .status(200)
-      .json({ message: "Product created successfully",product });
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "Not authorized as admin" });
+    }
+
+    const product = new Product(req.body);
+    const savedProduct = await product.save();
+    res.status(201).json(savedProduct);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//get all products
-
+// Get all products (Public)
 export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
-    res
-      .status(200)
-      .json({ message: "Products fetched successfully", data: products });
+    res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// update product
-
+// Update product (Admin only)
 export const updateProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
-    const { name, description, price, stock, image } = req.body;
-    const product = await Product.findByIdAndUpdate(
-      productId,
-      { name, description, price, stock, image },
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "Not authorized as admin" });
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
       { new: true }
     );
-    if (!product) {
+
+    if (!updatedProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
-    res
-      .status(200)
-      .json({ message: "Product updated successfully", data: product });
+
+    res.status(200).json(updatedProduct);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//delete product
+// Delete product (Admin only)
 export const deleteProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
-    const product = await Product.findByIdAndDelete(productId);
-    if (!product) {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "Not authorized as admin" });
+    }
+
+    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+
+    if (!deletedProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
-    res
-      .status(200)
-      .json({ message: "Product deleted successfully", data: product });
+
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

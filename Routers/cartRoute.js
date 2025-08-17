@@ -5,13 +5,13 @@ import {
   updateCartQuantity,
   viewCart,
 } from "../Controllers/cartController.js";
-import { authMiddleware } from "../Middleware/authMiddleware.js";
+import { protect } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/add", authMiddleware, addToCart);
-router.get("/view", authMiddleware, viewCart);
-router.delete("/remove/:productId", authMiddleware, removeFromCart);
-router.put("/update/:productId", authMiddleware, updateCartQuantity);
+router.post("/add", protect, addToCart);
+router.get("/view", protect, viewCart);
+router.delete("/remove/:productId", protect, removeFromCart);
+router.put("/update/:productId", protect, updateCartQuantity);
 
 export default router;

@@ -1,23 +1,37 @@
 import jwt from "jsonwebtoken";
-import User from "../Models/userModel.js";
-import dotenv from "dotenv";
+import User from "../Models/userModel.js"; // adjust path if your model filename is different
 
-dotenv.config();
-
-export const authMiddleware = async (req, res, next) => {
-  //const token = req.header("Authorization");
-  const token = req.headers.authorization?.split(" ")[1]; // split('')[1] =>bearer token
-
-  if (!token) {
-    return res.status(404).json({ message: "Token Missing" });
-  }
+// ✅ Protect middleware: verifies user token
+export const protect = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    //console.log("decoded", decoded);
-    req.user = await User.findById(decoded._id).select("-password");
-    //console.log("req.user", req.user);
-    next();
+    let token = req.headers.authorization;
+
+    if (token && token.startsWith("Bearer")) {
+      token = token.split(" ")[1];
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      req.user = await User.findById(decoded.id).select("-password");
+
+      if (!req.user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      next();
+    } else {
+      return res.status(401).json({ message: "Not authorized, no token" });
+    }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Auth error:", error);
+    return res.status(401).json({ message: "Not authorized, token failed" });
+  }
+};
+
+// ✅ Admin middleware: ensures user is admin
+export const adminProtect = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.status(403).json({ message: "Not authorized as admin" });
   }
 };

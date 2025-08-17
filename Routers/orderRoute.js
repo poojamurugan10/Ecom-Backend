@@ -1,19 +1,26 @@
 import express from "express";
-
 import {
-  getAllOrders,
+  createOrder,
   getMyOrders,
-  placeOrder,
+  getAllOrders,
   updateOrderStatus,
 } from "../Controllers/orderController.js";
-import { authMiddleware } from "../Middleware/authMiddleware.js";
-import { adminMiddleware } from "../Middleware/adminMiddleware.js";
+import { protect, adminProtect } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/create", authMiddleware, placeOrder);
-router.get("/myorders", authMiddleware, getMyOrders);
-router.get("/allorders", adminMiddleware, getAllOrders);
-router.put("/update/:id", adminMiddleware, updateOrderStatus);
+//  Create a new order (customer only, must be logged in)
+router.post("/", protect, createOrder);
+
+//  Get logged-in user's orders
+router.get("/myorders", protect, getMyOrders);
+
+//  Get all orders (admin only)
+router.get("/", protect, adminProtect, getAllOrders);
+
+// Update order status (admin only)
+router.put("/:id/status", protect, adminProtect, updateOrderStatus);
+
+
 
 export default router;

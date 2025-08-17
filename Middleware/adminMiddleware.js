@@ -30,3 +30,11 @@ export const adminMiddleware = async (req, res, next) => {
     res.status(401).json({ message: "Invalid or Expired Token" });
   }
 };
+
+export const adminProtect = (req, res, next) => {
+  if (req.user && req.user.isAdmin) {
+    next();
+  } else {
+    res.status(403).json({ message: "Not authorized as admin" });
+  }
+};

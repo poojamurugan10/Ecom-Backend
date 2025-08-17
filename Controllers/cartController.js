@@ -80,6 +80,35 @@ export const removeFromCart = async (req, res) => {
   }
 };
 
+export const removeOrderItem = async (req, res) => {
+  try {
+    const { orderId, productId } = req.params;
+    let order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Filter out the unwanted product
+    order.items = order.items.filter(
+      (item) => item.product.toString() !== productId
+    );
+
+    // Recalculate total price
+    order.totalPrice = order.items.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+
+    await order.save();
+
+    res.json({ order });
+  } catch (error) {
+    res.status(500).json({ message: "Error removing product from order", error: error.message });
+  }
+};
+
+
 // update quantity
 
 export const updateCartQuantity = async (req, res) => {
