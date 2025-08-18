@@ -26,8 +26,8 @@ export const createCheckout = async (req, res) => {
       key: process.env.RAZORPAY_KEY_ID,
 
       // ✅ Frontend redirect URLs
-      success_url: "https://ecommwebsite13.netlify.app/payment-success",
-      cancel_url: "https://ecommwebsite13.netlify.app/payment-cancel",
+      success_url: "https://ecommerce1310.netlify.app/payment-success",
+      cancel_url: "https://ecommerce1310.netlify.app/payment-cancel",
     });
   } catch (error) {
     console.error("Checkout error:", error);

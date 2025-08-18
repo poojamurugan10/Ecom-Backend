@@ -17,7 +17,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "*",  
+    origin:["http://localhost:5173", "https://ecommerce1310.netlify.app/"],  
     credentials: true,
   })
 );
