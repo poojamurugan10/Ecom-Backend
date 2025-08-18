@@ -66,7 +66,7 @@ export const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: "User Not Found" });
     }
     //create token
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
     //nodemailer part
