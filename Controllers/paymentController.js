@@ -2,7 +2,7 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import Order from "../Models/orderModel.js";
 
-// ✅ Checkout - Create Razorpay Order
+// Checkout - Create Razorpay Order
 export const createCheckout = async (req, res) => {
   try {
     const razorpay = new Razorpay({
@@ -25,7 +25,7 @@ export const createCheckout = async (req, res) => {
       currency: order.currency,
       key: process.env.RAZORPAY_KEY_ID,
 
-      // ✅ Frontend redirect URLs
+      //  Frontend redirect URLs
       success_url: "https://ecommerce1310.netlify.app/payment-success",
       cancel_url: "https://ecommerce1310.netlify.app/payment-cancel",
     });
@@ -35,7 +35,7 @@ export const createCheckout = async (req, res) => {
   }
 };
 
-// ✅ Verify Payment
+// Verify Payment
 export const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
@@ -48,7 +48,7 @@ export const verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid signature" });
     }
 
-    // ✅ Update order in DB
+    //  Update order in DB
     const order = await Order.findById(orderId);
     if (order) {
       order.status = "Paid";
@@ -70,7 +70,7 @@ export const verifyPayment = async (req, res) => {
   }
 };
 
-// ✅ Cancel Order 
+// Cancel Order 
 export const cancelOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

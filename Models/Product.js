@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ Prevent OverwriteModelError on hot reloads
+
 const Product =
   mongoose.models.Product || mongoose.model("Product", productSchema);
 

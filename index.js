@@ -10,6 +10,8 @@ import orderRoute from "./Routers/orderRoute.js";
 import paymentRoute from "./Routers/paymentRoute.js";
 import wishlistRoute from "./Routers/wishlistRoute.js";
 import reviewRoute from "./Routers/reviewRoute.js";
+import sellerRoutes from "./Routers/sellerRoute.js";
+import adminRoutes from "./Routers/adminRoute.js";
 
 dotenv.config();
 
@@ -34,6 +36,9 @@ app.use("/api/orders", orderRoute);
 app.use("/api/payments", paymentRoute);
 app.use("/api/wishlist", wishlistRoute);
 app.use("/api/reviews", reviewRoute);
+app.use("/api/seller", sellerRoutes);
+app.use("/api/admin", adminRoutes);
+
 
 // ✅ Connect DB & Start server once
 const port = process.env.PORT || 5000;

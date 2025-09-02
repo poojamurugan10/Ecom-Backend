@@ -10,7 +10,7 @@ const connectDB = async () => {
     console.log("✅ Connected to MongoDB Atlas");
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error.message);
-    process.exit(1); // stop server if DB connection fails
+    process.exit(1);
   }
   mongoose.connection.on("connected", () => {
   console.log("✅ Connected to DB:", mongoose.connection.name);

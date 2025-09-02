@@ -2,7 +2,7 @@ import Order from "../Models/orderModel.js";
 import Cart from "../Models/cartModel.js";
 import sendEmail from "../Utils/mailer.js";
 
-// ✅ Create a New Order (from Cart)
+//  Create a New Order (from Cart) → Customer
 export const createOrder = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.user._id }).populate("items.product");
@@ -25,14 +25,13 @@ export const createOrder = async (req, res) => {
 
     await order.save();
 
-    // ✅ Clear cart after placing order
+    //  Clear cart after placing order
     await Cart.findOneAndDelete({ user: req.user._id });
 
-    // ✅ Send email confirmation (non-blocking)
+    //  Send confirmation email
     try {
-      const userEmail = req.user.email;
       await sendEmail(
-        userEmail,
+        req.user.email,
         "Order Confirmation",
         `✅ Your order of $${totalPrice} has been placed successfully!`
       );
@@ -51,7 +50,7 @@ export const createOrder = async (req, res) => {
   }
 };
 
-// ✅ Get Logged-in User Orders
+// Get Logged-in User Orders → Customer
 export const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id })
@@ -69,12 +68,12 @@ export const getMyOrders = async (req, res) => {
   }
 };
 
-// ✅ Get All Orders (Admin only)
+// Get All Orders → Admin
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
       .populate("user", "name email")
-      .populate("products.product", "name price")
+      .populate("products.product", "name price seller") // include seller if product has seller ref
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -88,11 +87,37 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// ✅ Update Order Status (Admin only)
+//  Get Seller’s Orders (optional, if sellers should view their sales)
+export const getSellerOrders = async (req, res) => {
+  try {
+    const sellerId = req.user._id;
+
+    const orders = await Order.find({ "products.product.seller": sellerId })
+      .populate("user", "name email")
+      .populate("products.product", "name price")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Seller Orders retrieved",
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Get Seller Orders Error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch seller orders" });
+  }
+};
+
+//  Update Order Status → Admin
 export const updateOrderStatus = async (req, res) => {
   try {
     const orderId = req.params.id;
     const { status } = req.body;
+
+    const validStatuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status value" });
+    }
 
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
@@ -106,7 +131,7 @@ export const updateOrderStatus = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Order status updated",
+      message: `Order status updated to ${status}`,
       data: updatedOrder,
     });
   } catch (error) {

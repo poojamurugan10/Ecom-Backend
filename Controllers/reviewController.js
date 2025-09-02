@@ -1,7 +1,7 @@
 import Review from "../Models/reviewModel.js";
 import Product from "../Models/Product.js";
 
-// ✅ Add review
+//  Add review
 export const addReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
@@ -34,7 +34,7 @@ export const addReview = async (req, res) => {
   }
 };
 
-// ✅ Get product reviews
+//  Get product reviews
 export const getProductReviews = async (req, res) => {
   try {
     const reviews = await Review.find({ product: req.params.productId })
@@ -46,7 +46,7 @@ export const getProductReviews = async (req, res) => {
   }
 };
 
-// ✅ Delete review
+//  Delete review
 export const deleteReview = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);

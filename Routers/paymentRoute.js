@@ -4,13 +4,13 @@ import { protect } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Checkout
+//  Checkout
 router.post("/checkout", protect, createCheckout);
 
-// ✅ Verify payment
+//  Verify payment
 router.post("/verify", protect, verifyPayment);
 
-// ✅ Cancel order
+// Cancel order
 router.put("/cancel/:id", protect, cancelOrder); 
 
 export default router;

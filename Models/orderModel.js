@@ -19,7 +19,7 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ Prevent OverwriteModelError
+//  Prevent OverwriteModelError
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
 
 export default Order;
