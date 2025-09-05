@@ -9,7 +9,7 @@ export const getAllProducts = async (req, res) => {
     if (category) query.category = category;
     if (brand) query.brand = brand;
     if (search) query.name = { $regex: search, $options: "i" };
-    if (seller) query.seller = seller; // ✅ seller filter
+    if (seller) query.sellerId = seller; // ✅ seller filter
 
     if (minPrice || maxPrice) {
       query.price = {};
@@ -32,7 +32,7 @@ export const getAllProducts = async (req, res) => {
       .sort(sortOption)
       .skip(skip)
       .limit(pageSize)
-      .populate("seller", "name email"); // optional: populate seller info
+      .populate("sellerId", "name email"); // optional: populate seller info
 
     res.status(200).json({
       products,
@@ -56,7 +56,7 @@ export const createProduct = async (req, res) => {
 
     const product = new Product({
       ...req.body,
-      user: req.user._id, // track which seller/admin added it
+      sellerId: req.user._id, // track which seller/admin added it
     });
 
     const savedProduct = await product.save();
@@ -80,7 +80,7 @@ export const updateProduct = async (req, res) => {
     if (!product) return res.status(404).json({ message: "Product not found" });
 
     // Sellers can update only their own products
-    if (req.user.role === "seller" && product.user.toString() !== req.user._id.toString()) {
+    if (req.user.role === "seller" && product.sellerId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not authorized to update this product" });
     }
 
@@ -105,7 +105,7 @@ export const deleteProduct = async (req, res) => {
     if (!product) return res.status(404).json({ message: "Product not found" });
 
     // Sellers can delete only their own products
-    if (req.user.role === "seller" && product.user.toString() !== req.user._id.toString()) {
+    if (req.user.role === "seller" && product.sellerId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not authorized to delete this product" });
     }
 
