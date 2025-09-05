@@ -5,42 +5,41 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
+// 🔍 Debug check
+router.get("/", (req, res) => {
+  res.send("✅ Auth router is working");
+});
+
 // ✅ Registration Route
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-
     console.log("Incoming registration data:", req.body);
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // ✅ Role check
     if (!["admin", "seller", "customer"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    // ✅ Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Create user
     const user = new User({
       name,
       email,
-      password: hashedPassword, // ✅ correct variable
+      password: hashedPassword,
       role,
     });
 
     await user.save();
 
-    // ✅ Create token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -77,13 +76,11 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // ✅ Compare hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // ✅ Create token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
