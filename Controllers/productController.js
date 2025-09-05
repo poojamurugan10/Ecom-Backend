@@ -54,20 +54,29 @@ export const createProduct = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to create product" });
     }
 
+    const { name, description, price, category, brand, countInStock, image } = req.body;
+
     const product = new Product({
-      ...req.body,
-      sellerId: req.user._id, // track which seller/admin added it
+      name,
+      description,
+      price,
+      category,
+      brand: brand || "Generic",
+      countInStock: countInStock || 0,
+      image,
+      sellerId: req.user._id, // use _id from token
     });
 
     const savedProduct = await product.save();
     console.log("✅ Product created:", savedProduct.name);
 
-    res.status(201).json(savedProduct);
+    res.status(201).json({ message: "Product created successfully", product: savedProduct });
   } catch (error) {
-    console.error("❌ Error in createProduct:", error.message);
-    res.status(500).json({ message: "Server error while creating product" });
+    console.error("❌ Error creating product:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 //  Update product (admin or owner seller only)
 export const updateProduct = async (req, res) => {
@@ -116,5 +125,20 @@ export const deleteProduct = async (req, res) => {
   } catch (error) {
     console.error("❌ Error in deleteProduct:", error.message);
     res.status(500).json({ message: "Server error while deleting product" });
+  }
+};
+
+export const getSellerProducts = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "seller") {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const products = await Product.find({ sellerId: req.user._id }).sort({ createdAt: -1 });
+
+    res.status(200).json({ products });
+  } catch (err) {
+    console.error("❌ Error fetching seller products:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
