@@ -22,8 +22,8 @@ export const registerUser = async (req, res) => {
     const user = new User({
       name,
       email,
-      password: hashedPassword,
-      role: role || "customer", //  if frontend sends seller, it will save seller
+      password: hashPassword,
+      role: role  //  if frontend sends seller, it will save seller
     });
 
     await user.save();
